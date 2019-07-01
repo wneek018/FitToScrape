@@ -31,24 +31,27 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 //routes
 
-//a GET route for scraping the echoJS website
+//a GET route for scraping the nytimes website
 app.get("/scrape", function(req, res) {
     //grab the body of the html with axios
-    axios.get("http://www.echojs.com/").then(function(response) {
+    axios.get("http://www.nytimes.com/section/us").then(function(response) {
         //load that into cheerio and save it to $ for a shorthand selector
         var $ = cheerio.load(response.data);
 
         //grab every h2 within an article tag
-        $("article h2").each(function(i, element) {
+        $("article").each(function(i, element) {
             //save an empty result object
             var result = {};
 
-            //add the text and href of every link, and save them as properties of the result object
+            //add the title, summary and href of every link, and save them as properties of the result object
             result.title = $(this)
-                .children("a")
+                .find("h2 a")
+                .text();
+            result.summary = $(this)
+                .find("p")
                 .text();
             result.link = $(this)
-                .children("a")
+                .find("h2 a")
                 .attr("href");
 
             //create new Article using the result object built from scraping

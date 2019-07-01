@@ -10,6 +10,10 @@ var ArticleSchema = new Schema({
         type: String,
         required: true
     },
+    summary: {
+        type: String,
+        default: "Summary not available."
+    },
     // link is type string and required
     link: {
         type: String,

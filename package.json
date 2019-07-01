@@ -1,8 +1,8 @@
 {
   "name": "fittoscrape",
   "version": "1.0.0",
-  "description": "Using Mongoose and Cheerio, this app scrapes news articles and allows users to leave comments.",
-  "main": "server.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/wneek018/fitToScrape.git"
   },
-  "author": "Wendy",
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/wneek018/fitToScrape/issues"
@@ -21,7 +21,7 @@
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
-    "mongoose": "^5.6.1",
+    "mongoose": "^5.6.2",
     "morgan": "^1.9.1"
   }
 }

@@ -2,107 +2,92 @@ var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
-// scraping tools
+//scraping tools
 var axios = require("axios");
 var cheerio = require("cheerio");
 
-// require all models
+//require all models
 var db = require("./models");
 
 var PORT = 3000;
 
-// initialize express
+//initialize express
 var app = express();
 
-// Configure Middleware
+//configure middleware
 
-// use morgan logger for logging requests
+//use morgan logger for logging requests
 app.use(logger("dev"));
-// parse request body as JSON
+//parse request body as JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// make public a static folder
+//make public a static folder
 app.use(express.static("public"));
 
-// connect to the Mongo DB
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
+//connect to the Mongo DB - if deployed, use the deployed database. Otherwise use the local mongoHeadlines database
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 
-// Routes
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
-// GET route for scraping the Medium website
+//routes
+
+//a GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
-    // grab the body of the html with axios
-    axios.get("https://www.medium.com/").then(function(response) {
-        // load into cheerio and save it to $ for a shorthand selector
+    //grab the body of the html with axios
+    axios.get("http://www.echojs.com/").then(function(response) {
+        //load that into cheerio and save it to $ for a shorthand selector
         var $ = cheerio.load(response.data);
 
-        // grab every h2 within an article tag, and do the following:
+        //grab every h2 within an article tag
         $("article h2").each(function(i, element) {
-            // save an empty result object
+            //save an empty result object
             var result = {};
 
-            // add the text and href of every link, and save them as properties of the result object
+            //add the text and href of every link, and save them as properties of the result object
             result.title = $(this)
                 .children("a")
-                .children("aria-label");
+                .text();
             result.link = $(this)
                 .children("a")
                 .attr("href");
 
-            // create a new Article using the 'result' object built from scraping
+            //create new Article using the result object built from scraping
             db.Article.create(result)
                 .then(function(dbArticle) {
-                    // console.log the result
+                    //view the added result in the console
                     console.log(dbArticle);
                 })
                 .catch(function(err) {
-                    // log the error
+                    //if error occurred, log it
                     console.log(err);
                 });
         });
-        // send message to the client
+
+        //send a message to the client
         res.send("Scrape complete");
     });
 });
 
 // route for getting all Articles from the db
 app.get("/articles", function(req, res) {
-    // get every document in the Articles collection
+    //grab every document in the Articles collection
     db.Article.find({})
         .then(function(dbArticle) {
-            // if Articles found, send them back to the client
+            //send found Articles back to the client
             res.json(dbArticle);
         })
         .catch(function(err) {
-            // if error occurred, send to the client
+            //if error occurred, send to client
             res.json(err);
         });
 });
 
-// route for getting specific Article by id, populate it with its note
+// route for getting a specific Article by id, populate it with its note
 app.get("/articles/:id", function(req, res) {
-    // using the id passed in the id parameter, prepare a query that finds the matching one in our db
+    //using id passed in the id parameter, find the matching one in the db
     db.Article.findOne({ _id: req.params.id })
-        // populate all of the notes associated with it
+        //populate all notes associated with it
         .populate("note")
-        .then(function(dbArticle) {
-            // if Article found with id, send back to the client
-            res.json(dbArticle);
-        })
-        .catch(function(err) {
-            // if error occurred, send to the client
-            res.json(err);
-        });
-});
-
-// route for saving/updating an Article's associated Note
-app.post("/articles/:id", function(req, res) {
-    // create new note and pass the req.body to the entry
-    db.Note.create(req.body)
-        .then(function(dbNote) {
-            // if note was created, find one Article with '_id' equal to 'req.params.id'. Update the Article to be associated with the new Note - { new: true } returns the updated User
-            return db.Article.findByIdAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
-        })
         .then(function(dbArticle) {
             // if Article found, send back to the client
             res.json(dbArticle);
@@ -112,6 +97,24 @@ app.post("/articles/:id", function(req, res) {
             res.json(err);
         });
 });
+
+// route for saving/updating an Article's associated Note
+app.post("/articles/:id", function(req, res) {
+    //create a new note and pass the req.body to the entry
+    db.Note.create(req.body)
+        .then(function(dbNote) {
+            // if Note was created successfully, find one Article with the _id equal to req.params.id. Update the Article to be associated with the new Note
+            return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+        })
+        .then(function(dbArticle) {
+            // if successfully update an Article, send back to the client
+            res.json(dbArticle);
+        })
+        .catch(function(err) {
+            //if error occurred, send back to the client
+            res.json(err);
+        });
+});     
 
 // start the server
 app.listen(PORT, function() {

@@ -2,7 +2,7 @@
 $.getJSON("/articles", function(data) {
     // for each article display the info on the page
     for (var i = 0; i < data.length; i++) {
-        $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].summary + "<br />" + data[i].link + "</p>");
+        $("#articles").append("<div class='row'> <div class='col-sm-2'> <img src='" + data[i].image + "'alt='No picture available' height='42' width='60'> </div> <div class='col-sm-10'> <p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].summary + "<br />" + data[i].link + "<br /> </p> </div> </div>");
     }
 });
 

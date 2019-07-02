@@ -13,8 +13,12 @@
     {{#each articles}}
     <div class="well">
         <div class="row">
-            <div class="col col-md-8">
+            <div class="col col-md-4">
                 <h4><a href="{{this.link}}">{{this.title}}</a></h4>
+                <p>{{this.summary}}</p>
+            </div>
+            <div class="col col-md-4">
+                <img src="{{this.image}}" height="200" width="300">
             </div>
             <div class="col col-md-2">
                 <form class="form-inline" action="/api/articles/save/{{this.id}}" method="POST">

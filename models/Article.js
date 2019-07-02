@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+var uniqueValidator = require("mongoose-unique-validator");
 
 //save reference to Schema constructor
 var Schema = mongoose.Schema;
@@ -17,6 +18,7 @@ var ArticleSchema = new Schema({
     // link is type string and required
     link: {
         type: String,
+        unique: true,
         required: true
     },
     image: {
@@ -43,6 +45,9 @@ var ArticleSchema = new Schema({
         required: false
     }]
 });
+
+// plugin to make articles unique
+ArticleSchema.plugin(uniqueValidator);
 
 // creates model from the above schema
 var Article = mongoose.model("Article", ArticleSchema);

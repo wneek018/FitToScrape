@@ -116,7 +116,7 @@ router.get("/scrape", function(req, res) {
             result.summary = $(this)
                 .find("p")
                 .text();
-            result.link = $(this)
+            result.link = "http://www.nytimes.com/" + $(this)
                 .find("h2 a")
                 .attr("href")
             result.image = $(this)

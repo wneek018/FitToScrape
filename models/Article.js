@@ -22,11 +22,26 @@ var ArticleSchema = new Schema({
     image: {
         type: String
     },
+    saved: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    deleted: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
     // note is object that stores a Note id. The ref property links the ObjectId to the Note model and allows us to populate the Article with an associated Note
-    note: {
+    notes: [{
         type: Schema.Types.ObjectId,
-        ref: "Note"
-    }
+        ref: "Note",
+        required: false
+    }]
 });
 
 // creates model from the above schema
